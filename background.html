@@ -1,0 +1,47 @@
+<script language="javascript">
+
+function buildParams() {
+	var str = "";
+	str += "destination=https://email.emc.com/exchange/";
+	str += "&";
+	str += "flags=0";
+	str += "&";
+	str += "forcedownlevel=0";
+	str += "&";
+	str += "username=" + localStorage["owa_username"];
+	str += "&";
+	str += "password=" + localStorage["owa_passwd"];
+	str += "&";
+	str += "isUtf8=1";
+	return str;
+}
+
+function postRequest(req, url, params, stateCallBack) {
+    var req = new XMLHttpRequest();
+    req.open(
+        "POST",
+        url,
+        true);
+
+    //Send the proper header information along with the request
+    req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    req.setRequestHeader("Content-length", params.length);
+    req.setRequestHeader("Connection", "close");
+
+    req.onreadystatechange = stateCallBack;
+    req.send(params);
+}
+
+function onReadyStateChange() {
+	if(req.readyState == 4 && http.status == 200) {
+		alert(http.responseText);
+	}
+}
+
+var url = localStorage["owa_url"];
+var params = buildParams();
+var req = new XMLHttpRequest();
+
+postReqeust(req, url, params, onReadyStateChange);
+
+</script>
