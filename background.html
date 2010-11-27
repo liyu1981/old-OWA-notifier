@@ -1,8 +1,25 @@
-<script language="javascript">
+<html>
+
+<head>
+<script>
+
+var timeInterval = localStorage["owa_time_interval"];
+var timerId;
+
+var req = new XMLHttpRequest();
+var owa_auth_ok = false;
+var owa_check_mail_ok = false;
+
+var owa_new_mail_count = 0;
+var owa_new_mail_array = {};
+
+function nextRound() {
+	timerId = window.setTimeout(initCheckMail, timeInterval);
+}
 
 function buildParams() {
-	var str = "";
-	str += "destination=https://email.emc.com/exchange/";
+    var str = "";
+	str += "destination=" + localStorage["owa_url"] + "/exchange/";
 	str += "&";
 	str += "flags=0";
 	str += "&";
@@ -16,32 +33,156 @@ function buildParams() {
 	return str;
 }
 
-function postRequest(req, url, params, stateCallBack) {
-    var req = new XMLHttpRequest();
-    req.open(
-        "POST",
-        url,
-        true);
+function postRequest(url, params, stateCallBack) {
+    req.open("POST", url, true);
+    //req.open("GET", "https://email.emc.com/exchange/", true);
 
     //Send the proper header information along with the request
     req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    req.setRequestHeader("Content-length", params.length);
-    req.setRequestHeader("Connection", "close");
+    //req.setRequestHeader("Content-length", params.length);
+    //req.setRequestHeader("Connection", "close");
 
     req.onreadystatechange = stateCallBack;
     req.send(params);
 }
 
-function onReadyStateChange() {
-	if(req.readyState == 4 && http.status == 200) {
-		alert(http.responseText);
+function popFailed(msg)
+{
+	chrome.browserAction.setBadgeText({text:"!"});
+	chrome.browserAction.setPopup({popup:msg});
+	nextRound();
+}
+
+function checkSingleMail(mail_fields)
+{
+    var name_field_index = 5;
+    var subject_field_index = 6;
+    var received_field_index = 7;
+
+    //alert(mail_fields[name_field_index]+","+mail_fields[subject_field_index]+","+mail_fields[received_field_index]);
+	if(mail_fields[name_field_index].indexOf("<b>")>0)
+	{
+		// new mail
+		owa_new_mail_count += 1;
+		var new_mail_fields = {};
+		new_mail_fields["name"]=escape(mail_fields[name_field_index]);
+		new_mail_fields["subject"]=escape(mail_fields[subject_field_index]);
+		new_mail_fields["time"]=escape(mail_fields[received_field_index]);
+		owa_new_mail_array[owa_new_mail_count] = JSON.stringify(new_mail_fields);
 	}
 }
 
-var url = localStorage["owa_url"];
-var params = buildParams();
-var req = new XMLHttpRequest();
+function checkMailOneByOne(mail_lines)
+{
+	owa_new_mail_count = 0;
+	owa_new_mail_array = {};
+    for(line in mail_lines)
+    {
+        if(mail_lines[line].indexOf("class=Head")>0)
+            continue;
+        if(mail_lines[line].indexOf("TD")<0)
+            continue;
+        var mail_fields = mail_lines[line].split("</TD>");
+        checkSingleMail(mail_fields);
+    }
 
-postReqeust(req, url, params, onReadyStateChange);
+	localStorage["owa_new_mail_count"] = owa_new_mail_count;
+	localStorage["owa_new_mail_array"] = JSON.stringify(owa_new_mail_array);
+	localStorage["owa_new_mail_flag"] = 1;
+
+	chrome.browserAction.setBadgeText({text:localStorage["owa_new_mail_count"]});
+	nextRound();
+}
+
+function checkMails()
+{
+    if(req.readyState == 4 && req.status == 200)
+    {
+        if(!owa_check_mail_ok)
+        {
+            owa_check_mail_ok = true;
+            //alert(req.responseText);
+            var ml_html_lines = req.responseText.split("\n");
+            //alert(ml_html_lines);
+            var ml_list_paragraph;
+            for(line in ml_html_lines)
+            {
+                if(ml_html_lines[line].indexOf("D6E7FB")>0)
+                {
+                    ml_list_paragraph = ml_html_lines[line];
+                    break;
+                } 
+            }
+            //alert(ml_list_paragraph);
+            var ml_list_lines = ml_list_paragraph.split("</TR>");
+            checkMailOneByOne(ml_list_lines);
+        }
+    }
+    else if(req.status != 200)
+    {
+        if(!owa_check_mail_ok)
+        {
+            owa_check_mail_ok = true;
+            popFailed("Logined successfully but failed to get mail list. Please try again later or chech your settings\n"+"Status: "+req.status);
+        }
+    }
+}
+
+function onReadyStateChange() {
+    if(req.readyState == 4 && req.status == 200)
+    {
+        if(!owa_auth_ok)
+        {
+            owa_auth_ok = true;
+            var base_match = new String(req.responseText.match(/<BASE href=".*">/));
+            var index_url = base_match.substring(12, base_match.length-2) + "Inbox?Cmd=contents";
+            //alert(index_url);
+            owa_check_mail_ok = false;
+            req.open("GET", index_url, true);
+            req.onreadystatechange = checkMails;
+            req.send();
+        }
+    }
+    else if(req.status != 200)
+    {
+        if(!owa_auth_ok)
+        {
+            owa_auth_ok = true;
+            popFailed("Failed to login to OWA. Please check your settings.\n"+"Status: "+req.status);
+        }
+    }
+}
+
+function initCheckMail() {
+	chrome.browserAction.setBadgeText({text:"*"});
+
+    var url = localStorage["owa_url"] + "/exchweb/bin/auth/owaauth.dll";
+    var params = buildParams();
+
+    var oD = new Date();
+    oD.setTime(oD.getTime() + 2 * 7 * 24 * 60 * 60 * 1000);
+    var sA = "acc=" + 1;
+    var sL = "lgn=" + localStorage["owa_username"];
+    document.cookie = "logondata=" + sA + "&" + sL + "; expires=" + oD.toUTCString();
+    document.cookie = "cookieTest=1; expires=" + oD.toGMTString();
+ 
+    //alert("Req w: "+url+"\n"+params);
+    owa_auth_ok = false;
+	localStorage["owa_new_mail_flag"] = 0;
+    postRequest(url, params, onReadyStateChange);
+}
+
+function main() {
+	if(timeInterval == undefined)
+		timeInterval = 1000 * 60 * 5; // 5 minute
+
+	initCheckMail();	
+}
 
 </script>
+<head>
+
+<body onload='main()'></body>
+
+</html>
+

@@ -1,0 +1,72 @@
+<html>
+<head>
+<script>
+
+function showInfo()
+{
+	var i;
+
+	var html_head = 
+"<html><head> \
+<style type='text/css'> \
+body {width:500;} \
+table { \
+	font-family:\"Trebuchet MS\", Arial, Helvetica, sans-serif; \
+	width:90\%; \
+	border-collapse:collapse; \
+} \
+td, th { \
+	font-size:1em; \
+	border:1px solid #98bf21; \
+	padding:3px 7px 2px 7px; \
+} \
+th { \
+	font-size:1em; \
+	text-align:left; \
+	padding-top:5px; \
+	padding-bottom:4px; \
+	background-color:#A7C942; \
+	color:#ffffff; \
+} \
+</style> \
+</head><body> \
+";
+
+	var html_tail = "</body></html>";
+
+	document.write(html_head);
+
+	if(parseInt(localStorage["owa_new_mail_flag"]) == 1)
+	{
+		document.write("<h3>You have new Mail!</h3>");
+		//document.write("In total: "+localStorage["owa_new_mail_count"]+".<br>");
+		//document.write("<pre>"+localStorage["owa_new_mail_array"]+"</pre>");
+		document.write("<table>");
+		document.write("<tr><th>From:<th>Subject:<th>Received Time</tr>");
+		var mails = JSON.parse(localStorage["owa_new_mail_array"]);
+		//document.write("<pre>"+mails.toString()+"</pre>");
+		for(i=1; i<=localStorage["owa_new_mail_count"]; ++i)
+		{
+			document.write("<tr>");
+			var mail_fields = JSON.parse(mails[i]);
+			//document.write("<pre>"+mail_fields.toString()+"</pre>");
+			document.write(unescape(mail_fields["name"]));
+			document.write(unescape(mail_fields["subject"]));
+			document.write(unescape(mail_fields["time"]));
+			document.write("</tr>");
+		}
+		document.write("</table>");
+	}
+	else
+	{
+		document.write("No news is good news, isn't it? :)");
+	}
+
+	document.write(html_tail);
+}
+
+</script>
+</head>
+<body onload="showInfo()">
+</body>
+</html>
