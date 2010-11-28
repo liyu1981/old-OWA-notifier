@@ -1,0 +1,47 @@
+<html>
+<head>
+
+<title>Options for Old OWA Notifier</title>
+
+<script type="text/javascript">
+
+function loadOptions() {
+    var _url = localStorage["owa_url"];
+    var _username = localStorage["owa_username"];
+    var _passwd = localStorage["owa_passwd"];
+	var _time_interval = localStorage["owa_time_interval"];
+
+    if(_url != undefined)
+        document.getElementById("owa_url").value = _url;
+    if(_username != undefined)
+        document.getElementById("owa_username").value = _username;
+    if(_passwd != undefined)
+        document.getElementById("owa_passwd").value = _passwd;
+	if(_time_interval != undefined)
+		document.getElementById("owa_time_interval") = parseFloat(_time_interval)/(1000*60);
+}
+
+function saveOptions() {
+    localStorage["owa_url"] = document.getElementById("owa_url").value;
+    localStorage["owa_username"] = document.getElementById("owa_username").value;
+    localStorage["owa_passwd"] = document.getElementById("owa_passwd").value;
+	localStorage["owa_time_interval"] = parseFloat(document.getElementById("owa_time_interval").value)*(1000*60);
+    alert("Options saved!");
+}
+
+</script>
+
+</head>
+
+<body onload="loadOptions()">
+    <h1>Options for Old OWA Notifier</h1>
+    <b>OWA Url</b>: <input type="text" id="owa_url" /><br />
+    <b>Login Name</b>: <input type="text" id="owa_username" /><br />
+    <b>Password</b>: <input type="text" id="owa_passwd" /><br />
+	<b>Check Time Interval(in Minutes)</b>: <input type="text" id ="owa_time_interval" /><br />
+    <br />
+    <button onclick="saveOptions()">Save</button>
+    <br />
+</body>
+
+</html>

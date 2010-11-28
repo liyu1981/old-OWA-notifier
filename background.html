@@ -13,7 +13,59 @@ var owa_check_mail_ok = false;
 var owa_new_mail_count = 0;
 var owa_new_mail_array = {};
 
-function nextRound() {
+var name_field_index = 5;
+var subject_field_index = 6;
+var received_field_index = 7;
+
+// borrowed from google's gmail checker example
+// A "loading" animation displayed while we wait for the first response from
+// Gmail. This animates the badge text with a dot that cycles from left to
+// right.
+var animationFrames = 36;
+var animationSpeed = 10; // ms
+var loadingAnimation = new LoadingAnimation();
+
+function LoadingAnimation() {
+  this.timerId_ = 0;
+  this.maxCount_ = 8;  // Total number of states in animation
+  this.current_ = 0;  // Current state
+  this.maxDot_ = 4;  // Max number of dots in animation
+}
+
+LoadingAnimation.prototype.paintFrame = function() {
+  var text = "";
+  for (var i = 0; i < this.maxDot_; i++) {
+    text += (i == this.current_) ? "." : " ";
+  }
+  if (this.current_ >= this.maxDot_)
+    text += "";
+
+  chrome.browserAction.setBadgeText({text:text});
+  this.current_++;
+  if (this.current_ == this.maxCount_)
+    this.current_ = 0;
+}
+
+LoadingAnimation.prototype.start = function() {
+  if (this.timerId_)
+    return;
+
+  var self = this;
+  this.timerId_ = window.setInterval(function() {
+    self.paintFrame();
+  }, 100);
+}
+
+LoadingAnimation.prototype.stop = function() {
+  if (!this.timerId_)
+    return;
+
+  window.clearInterval(this.timerId_);
+  this.timerId_ = 0;
+}
+
+function nextRound()
+{
 	timerId = window.setTimeout(initCheckMail, timeInterval);
 }
 
@@ -48,17 +100,27 @@ function postRequest(url, params, stateCallBack) {
 
 function popFailed(msg)
 {
+    loadingAnimation.stop();
 	chrome.browserAction.setBadgeText({text:"!"});
-	chrome.browserAction.setPopup({popup:msg});
+	localStorage["owa_failed_msg"] = escape(msg);
+	chrome.browserAction.setPopup({popup:"failed-popup.html"});
+	nextRound();
+}
+
+function checkMailSucceed()
+{
+	localStorage["owa_new_mail_count"] = owa_new_mail_count;
+	localStorage["owa_new_mail_array"] = JSON.stringify(owa_new_mail_array);
+	localStorage["owa_new_mail_flag"] = 1;
+
+    loadingAnimation.stop();
+	chrome.browserAction.setBadgeText({text:localStorage["owa_new_mail_count"]});
+	chrome.browserAction.setPopup({popup:"popup.html"});
 	nextRound();
 }
 
 function checkSingleMail(mail_fields)
 {
-    var name_field_index = 5;
-    var subject_field_index = 6;
-    var received_field_index = 7;
-
     //alert(mail_fields[name_field_index]+","+mail_fields[subject_field_index]+","+mail_fields[received_field_index]);
 	if(mail_fields[name_field_index].indexOf("<b>")>0)
 	{
@@ -85,13 +147,8 @@ function checkMailOneByOne(mail_lines)
         var mail_fields = mail_lines[line].split("</TD>");
         checkSingleMail(mail_fields);
     }
-
-	localStorage["owa_new_mail_count"] = owa_new_mail_count;
-	localStorage["owa_new_mail_array"] = JSON.stringify(owa_new_mail_array);
-	localStorage["owa_new_mail_flag"] = 1;
-
-	chrome.browserAction.setBadgeText({text:localStorage["owa_new_mail_count"]});
-	nextRound();
+	
+	checkMailSucceed();
 }
 
 function checkMails()
@@ -107,7 +164,9 @@ function checkMails()
             var ml_list_paragraph;
             for(line in ml_html_lines)
             {
-                if(ml_html_lines[line].indexOf("D6E7FB")>0)
+                if(ml_html_lines[line].indexOf("Inbox")>0
+					&& ml_html_lines[line].indexOf(".EML?Cmd=open")>0
+					&& ml_html_lines[line].indexOf("NAME=MsgID")>0)
                 {
                     ml_list_paragraph = ml_html_lines[line];
                     break;
@@ -154,8 +213,6 @@ function onReadyStateChange() {
 }
 
 function initCheckMail() {
-	chrome.browserAction.setBadgeText({text:"*"});
-
     var url = localStorage["owa_url"] + "/exchweb/bin/auth/owaauth.dll";
     var params = buildParams();
 
@@ -170,6 +227,8 @@ function initCheckMail() {
     owa_auth_ok = false;
 	localStorage["owa_new_mail_flag"] = 0;
     postRequest(url, params, onReadyStateChange);
+
+	loadingAnimation.start();
 }
 
 function main() {
