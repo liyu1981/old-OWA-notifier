@@ -26,7 +26,7 @@ function saveOptions() {
     localStorage["owa_username"] = document.getElementById("owa_username").value;
     localStorage["owa_passwd"] = document.getElementById("owa_passwd").value;
 	localStorage["owa_time_interval"] = parseFloat(document.getElementById("owa_time_interval").value)*(1000*60);
-    alert("Options saved!");
+    alert("Options Saved!");
 }
 
 </script>
@@ -34,14 +34,44 @@ function saveOptions() {
 </head>
 
 <body onload="loadOptions()">
-    <h1>Options for Old OWA Notifier</h1>
-    <b>OWA Url</b>: <input type="text" id="owa_url" /><br />
-    <b>Login Name</b>: <input type="text" id="owa_username" /><br />
-    <b>Password</b>: <input type="text" id="owa_passwd" /><br />
-	<b>Check Time Interval(in Minutes)</b>: <input type="text" id ="owa_time_interval" /><br />
-    <br />
+<h1>Options for Old OWA Notifier</h1>
+<table>
+<tr>
+<td><b>OWA Url</b>: </td>
+<td><input type="text" id="owa_url" /></td>
+<td>  <input type="button" id="bn_test_owa_url" value="Test OWA Url!" onclick="" /></td>
+</tr>
+<tr>
+<td><b>Login Name</b>: </td>
+<td><input type="text" id="owa_username" /></td>
+<td></td>
+</tr>
+<tr>
+<td><b>Password</b>: </td>
+<td><input type="password" id="owa_passwd" /></td>
+<td>  <input type="button" id="bn_test_login" value="Test Login!" onclick="" /></td>
+</tr>
+<tr>
+<td><b>Check Time Interval(in Minutes)</b>: </td>
+<td><input type="text" id ="owa_time_interval" /></td>
+<td>  Optional, Default=5 Min</td>
+</tr>
+    </table>
     <button onclick="saveOptions()">Save</button>
     <br />
+
+<!-- Donation stuff -->
+<hr />
+<p>Happy with Old OWA Notifier ? 
+<p>Please donate to keep development active!
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
+">
+<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_paynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypal.com/zh_HK/i/scr/pixel.gif" width="1" height="1">
+</form>
+
 </body>
 
 </html>
