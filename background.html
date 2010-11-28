@@ -109,9 +109,17 @@ function popFailed(msg)
 
 function checkMailSucceed()
 {
-	localStorage["owa_new_mail_count"] = owa_new_mail_count;
-	localStorage["owa_new_mail_array"] = JSON.stringify(owa_new_mail_array);
-	localStorage["owa_new_mail_flag"] = 1;
+	if(owa_new_mail_count <= 0)
+	{
+		localStorage["owa_new_mail_count"] = owa_new_mail_count;
+		localStorage["owa_new_mail_flag"] = 0;
+	}
+	else
+	{
+		localStorage["owa_new_mail_count"] = owa_new_mail_count;
+		localStorage["owa_new_mail_array"] = JSON.stringify(owa_new_mail_array);
+		localStorage["owa_new_mail_flag"] = 1;
+	}
 
     loadingAnimation.stop();
 	chrome.browserAction.setBadgeText({text:localStorage["owa_new_mail_count"]});
