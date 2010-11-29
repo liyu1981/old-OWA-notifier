@@ -18,7 +18,7 @@ function loadOptions() {
     if(_passwd != undefined)
         document.getElementById("owa_passwd").value = _passwd;
 	if(_time_interval != undefined)
-		document.getElementById("owa_time_interval") = parseFloat(_time_interval)/(1000*60);
+		document.getElementById("owa_time_interval").value = parseFloat(_time_interval)/(1000*60);
 }
 
 function saveOptions() {
