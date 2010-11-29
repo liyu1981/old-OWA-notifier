@@ -50,6 +50,9 @@ th { \
 	var html_tail = 
 "</body></html>";
 
+	var html_recheck_bn =
+"<input type='button' value='Re-check Now!' onclick='reCheck()'>";
+
 	var html_go_to_my_inbox_bn = 
 "<p><input type='button' value='Go to my Mail List' onclick='goInbox(true)'> \
 or \
@@ -83,6 +86,7 @@ or \
 	else
 	{
 		document.write("No news is good news, isn't it? :)");
+		document.write(" "+html_recheck_bn);
 	}
 
 	document.write(html_go_to_my_inbox_bn);
@@ -96,6 +100,11 @@ function goInbox(flag) {
 	else
 		_url = unescape(localStorage['owa_base_ref_url']);
 	chrome.tabs.create({url:_url});
+}
+
+function reCheck() {
+	chrome.extension.getBackgroundPage().location.reload();
+	window.close();
 }
 
 </script>
