@@ -54,10 +54,10 @@ th { \
 "<input type='button' value='Re-check Now!' onclick='reCheck()'>";
 
 	var html_go_to_my_inbox_bn = 
-"<p><input type='button' value='Go to my Mail List' onclick='goInbox(true)'> \
-or \
+"<input type='button' value='Go to my Mail List' onclick='goInbox(true)'> \
+, \
 <input type='button' value='Go to my Inbox' onclick='goInbox(false)'> \
-</p>";
+";
 
 	document.write(html_head);
 
@@ -86,10 +86,10 @@ or \
 	else
 	{
 		document.write("No news is good news, isn't it? :)");
-		document.write(" "+html_recheck_bn);
 	}
 
-	document.write(html_go_to_my_inbox_bn);
+	document.write("<p>" + html_go_to_my_inbox_bn);
+	document.write(" or "+html_recheck_bn);
 	document.write(html_tail);
 }
 
