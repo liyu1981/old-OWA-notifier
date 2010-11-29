@@ -8,6 +8,6 @@
   },
   "background_page": "background.html",
   "options_page": "options.html",
-  "permissions": [ "https://*/*" ]
+  "permissions": [ "https://*/*", "tabs" ]
 }
 

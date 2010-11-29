@@ -50,6 +50,12 @@ th { \
 	var html_tail = 
 "</body></html>";
 
+	var html_go_to_my_inbox_bn = 
+"<p><input type='button' value='Go to my Mail List' onclick='goInbox(true)'> \
+or \
+<input type='button' value='Go to my Inbox' onclick='goInbox(false)'> \
+</p>";
+
 	document.write(html_head);
 
 	if(parseInt(localStorage["owa_new_mail_flag"]) == 1)
@@ -79,7 +85,17 @@ th { \
 		document.write("No news is good news, isn't it? :)");
 	}
 
+	document.write(html_go_to_my_inbox_bn);
 	document.write(html_tail);
+}
+
+function goInbox(flag) {
+	var _url;
+	if(flag)
+		_url = unescape(localStorage['owa_base_ref_url']) + 'Inbox?Cmd=contents';
+	else
+		_url = unescape(localStorage['owa_base_ref_url']);
+	chrome.tabs.create({url:_url});
 }
 
 </script>

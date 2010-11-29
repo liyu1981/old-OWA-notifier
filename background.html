@@ -202,7 +202,8 @@ function onReadyStateChange() {
         {
             owa_auth_ok = true;
             var base_match = new String(req.responseText.match(/<BASE href=".*">/));
-            var index_url = base_match.substring(12, base_match.length-2) + "Inbox?Cmd=contents";
+			localStorage["owa_base_ref_url"] = escape(base_match.substring(12, base_match.length-2));
+            var index_url = unescape(localStorage["owa_base_ref_url"]) + "Inbox?Cmd=contents";
             //alert(index_url);
             owa_check_mail_ok = false;
             req.open("GET", index_url, true);
