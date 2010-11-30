@@ -3,6 +3,8 @@
 
 <title>Options for Old OWA Notifier</title>
 
+<!-- <script src="sjcl.js"></script> -->
+
 <script type="text/javascript">
 
 function loadOptions() {
@@ -16,7 +18,8 @@ function loadOptions() {
     if(_username != undefined)
         document.getElementById("owa_username").value = _username;
     if(_passwd != undefined)
-        document.getElementById("owa_passwd").value = _passwd;
+        //document.getElementById("owa_passwd").value = sjcl.encrypt(_passwd);
+		document.getElementById("owa_passwd").value = _passwd;
 	if(_time_interval != undefined)
 		document.getElementById("owa_time_interval").value = parseFloat(_time_interval)/(1000*60);
 }
@@ -24,7 +27,8 @@ function loadOptions() {
 function saveOptions() {
     localStorage["owa_url"] = document.getElementById("owa_url").value;
     localStorage["owa_username"] = document.getElementById("owa_username").value;
-    localStorage["owa_passwd"] = document.getElementById("owa_passwd").value;
+    //localStorage["owa_passwd"] = sjcl.decrypt(document.getElementById("owa_passwd").value);
+	localStorage["owa_passwd"] = document.getElementById("owa_passwd").value;
 	localStorage["owa_time_interval"] = parseFloat(document.getElementById("owa_time_interval").value)*(1000*60);
     alert("Options Saved!");
 }

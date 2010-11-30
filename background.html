@@ -1,6 +1,7 @@
 <html>
 
 <head>
+<!-- <script src="sjcl.js"></script> -->
 <script>
 
 var timeInterval = localStorage["owa_time_interval"];
@@ -79,6 +80,7 @@ function buildParams() {
 	str += "&";
 	str += "username=" + localStorage["owa_username"];
 	str += "&";
+	//str += "password=" + sjcl.decrypt(localStorage["owa_passwd"]);
 	str += "password=" + localStorage["owa_passwd"];
 	str += "&";
 	str += "isUtf8=1";
