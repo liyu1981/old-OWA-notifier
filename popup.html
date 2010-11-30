@@ -10,6 +10,7 @@ function showInfo()
 "<html><head> \
 <style type='text/css'> \
 body {width:500;} \
+p { margin-top: 5px; margin-bottom: 5px; } \
 h3 { \
 	font-family: helvetica, sans-serif; \
 } \
@@ -66,7 +67,7 @@ th { \
 
 	if(parseInt(localStorage["owa_new_mail_flag"]) == 1)
 	{
-		document.write("<b>You got new Mail!</b>");
+		document.write("<p><b>You got new Mail!</b></p>");
 		//document.write("In total: "+localStorage["owa_new_mail_count"]+".<br>");
 		//document.write("<pre>"+localStorage["owa_new_mail_array"]+"</pre>");
 		document.write("<table>");
