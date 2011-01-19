@@ -2,6 +2,32 @@
 <head>
 <script>
 
+function stripField(f)
+{
+    var ret;
+    var pos;
+    var pos2;
+
+    ret = f.toLowerCase();
+
+    pos = ret.indexOf("<a");
+    if(pos>0) {
+        pos2 = ret.indexOf(">", pos);
+        if (pos2>0) {
+            var tmp_head = ret.substring(0, pos);
+            var tmp_tail = ret.substring(pos2+1);
+            ret = tmp_head + "<u>" + tmp_tail;
+        }
+    }
+
+    pos = ret.indexOf("</a>");
+    if(ret.indexOf("</a>")>0) {
+        ret.replace("</a>", "</u>");
+    }
+
+    return ret;
+}
+
 function showInfo()
 {
 	var i;
@@ -80,9 +106,9 @@ th { \
 			var mail_fields = JSON.parse(mails[i]);
 			//document.write("<pre>"+mail_fields.toString()+"</pre>");
 			document.write("<td>"+i+"</td>");
-			document.write(unescape(mail_fields["name"]));
-			document.write(unescape(mail_fields["subject"]));
-			document.write(unescape(mail_fields["time"]));
+			document.write(stripField(unescape(mail_fields["name"])));
+			document.write(stripField(unescape(mail_fields["subject"])));
+			document.write(stripField(unescape(mail_fields["time"])));
 			document.write("</tr>");
 		}
 		document.write("</table>");
